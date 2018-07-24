@@ -2,7 +2,7 @@
 
 Application developed based on .NET Core WEB API
 
-##Overview
+## Overview
 This tutorial creates the following API:
 
 |API	                   |   Description	                |   Request body    |   Response body       |
@@ -37,3 +37,10 @@ Press Debug (F5) or _use commend_ to build and run the program. In a browser, na
 ```bash
 dotnet run
 ```
+
+## Swagger
+
+Use below address in a browse, navigate to swagger. [Instruction for how to create](https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages-using-swagger?view=aspnetcore-2.1)
+
+http://localhost:5000/swagger/v1/swagger.json
+

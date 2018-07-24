@@ -28,7 +28,8 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        [ProducesResponseType(200)]
+        public ActionResult<List<Phone>> GetAll()
         {
             return Ok(_context.PhoneItems.ToList());
         }
@@ -36,7 +37,7 @@ namespace PhoneShopAPI.Controllers
         [HttpGet("{id}", Name = "GetPhone")]
         [ProducesResponseType(typeof(Phone), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<Phone>> GetById(int id)
         {
             var phone = await _context.PhoneItems.FindAsync(id);
             if (phone == null)
@@ -56,6 +57,7 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Update(int id, [FromBody] Phone item)
         {
@@ -75,6 +77,8 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(int id)
         {
             var phone = await _context.PhoneItems.FindAsync(id);

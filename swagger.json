@@ -1,0 +1,162 @@
+{
+    "x-generator": "NSwag v11.17.21.0 (NJsonSchema v9.10.63.0 (Newtonsoft.Json v9.0.0.0))",
+    "swagger": "2.0",
+    "info": {
+        "title": "PhoneShop API",
+        "version": "v1",
+        "description": "A simple ASP.NET Core web API",
+        "contact": {
+            "name": "Orifjon Narkulov",
+            "email": "orifjon9@gmail.com",
+            "url": "http://www.orifjon.net"
+        }
+    },
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/api/Phones": {
+            "get": {
+                "tags": [
+                    "Phones"
+                ],
+                "operationId": "Phones_GetAll",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Phones"
+                ],
+                "operationId": "Phones_Create",
+                "parameters": [{
+                    "name": "phone",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Phone"
+                    },
+                    "x-nullable": true
+                }],
+                "responses": {
+                    "200": {
+                        "x-nullable": true,
+                        "description": "",
+                        "schema": {
+                            "type": "OK"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Phones/{id}": {
+            "get": {
+                "tags": [
+                    "Phones"
+                ],
+                "operationId": "Phones_GetById",
+                "parameters": [{
+                    "type": "integer",
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "format": "int32",
+                    "x-nullable": false
+                }],
+                "responses": {
+                    "200": {
+                        "x-nullable": true,
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Phone"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Phones"
+                ],
+                "operationId": "Phones_Update",
+                "parameters": [{
+                        "type": "integer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "format": "int32",
+                        "x-nullable": false
+                    },
+                    {
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Phone"
+                        },
+                        "x-nullable": true
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Phones"
+                ],
+                "operationId": "Phones_Delete",
+                "parameters": [{
+                    "type": "integer",
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "format": "int32",
+                    "x-nullable": false
+                }],
+                "responses": {
+                    "200": {
+                        "x-nullable": true,
+                        "description": "",
+                        "schema": {
+                            "type": "OK"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Phone": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "Id",
+                "Name"
+            ],
+            "properties": {
+                "Id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "Name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "Description": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

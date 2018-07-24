@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using PhoneShopAPI.Models;
+using NJsonSchema;
+using NSwag.AspNetCore;
+using System.Reflection;
 
 namespace PhoneShopAPI
 {
@@ -40,6 +43,36 @@ namespace PhoneShopAPI
             }
             app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            app.UseSwagger(typeof(Startup).Assembly, settings =>
+            {
+                settings.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "PhoneShop API";
+                    document.Info.Description = "A simple ASP.NET Core web API";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.SwaggerContact
+                    {
+                        Name = "Orifjon Narkulov",
+                        Email = "orifjon9@gmail.com",
+                        Url = "http://www.orifjon.net"
+                    };
+                    document.Info.License = new NSwag.SwaggerLicense
+                    {
+                        Name = "Use under LICX",
+                        Url = "https://example.com/license"
+                    };
+                };
+            });
+
+            // Enable the Swagger UI middleware and the Swagger generator
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
+            {
+                settings.GeneratorSettings.DefaultPropertyNameHandling =
+                    PropertyNameHandling.CamelCase;
+            });
+
             app.UseMvc();
         }
     }
