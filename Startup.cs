@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using PhoneShopAPI.Models;
 
 namespace PhoneShopAPI
 {
@@ -23,6 +25,9 @@ namespace PhoneShopAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Register the database context as dependance injection (DI)
+            services.AddDbContext<PhoneContext>(opt =>
+                opt.UseInMemoryDatabase("PhoneList"));
             services.AddMvc();
         }
 
@@ -33,7 +38,8 @@ namespace PhoneShopAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
