@@ -13,6 +13,7 @@ using PhoneShopAPI.Models;
 using NJsonSchema;
 using NSwag.AspNetCore;
 using System.Reflection;
+using PhoneShopAPI.Formatters;
 
 namespace PhoneShopAPI
 {
@@ -31,7 +32,11 @@ namespace PhoneShopAPI
             // Register the database context as dependance injection (DI)
             services.AddDbContext<PhoneContext>(opt =>
                 opt.UseInMemoryDatabase("PhoneList"));
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                // request header should have "Accept = text/csv"
+                options.OutputFormatters.Add(new CsvOutputFormatter());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
