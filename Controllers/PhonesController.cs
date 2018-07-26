@@ -4,6 +4,7 @@ using PhoneShopAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PhoneShopAPI.Helpers;
 
 namespace PhoneShopAPI.Controllers
 {
@@ -31,7 +32,14 @@ namespace PhoneShopAPI.Controllers
         [ProducesResponseType(200)]
         public ActionResult<List<Phone>> GetAll()
         {
-            return Ok(_context.PhoneItems.ToList());
+            try
+            {
+                return Ok(_context.PhoneItems.ToList());
+            }
+            catch (Exception)
+            {
+                return BadRequest(ErrorCode.RecordsNotFound);
+            }
         }
 
         [HttpGet("{id}", Name = "GetPhone")]
@@ -39,21 +47,35 @@ namespace PhoneShopAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<Phone>> GetById(int id)
         {
-            var phone = await _context.PhoneItems.FindAsync(id);
-            if (phone == null)
+            try
             {
-                return NotFound();
+                var phone = await _context.PhoneItems.FindAsync(id);
+                if (phone == null)
+                {
+                    return NotFound();
+                }
+                return Ok(phone);
             }
-            return Ok(phone);
+            catch (Exception)
+            {
+                return BadRequest(ErrorCode.RecordNotFound);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]Phone phone)
         {
-            await _context.PhoneItems.AddAsync(phone);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.PhoneItems.AddAsync(phone);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
+                return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
+            }
+            catch (Exception)
+            {
+                return BadRequest(ErrorCode.CouldNotCreateEntity);
+            }
         }
 
         [HttpPut("{id}")]
@@ -61,19 +83,26 @@ namespace PhoneShopAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> Update(int id, [FromBody] Phone item)
         {
-            var phone = await _context.PhoneItems.FindAsync(id);
-            if (phone == null)
+            try
             {
-                return NotFound();
+                var phone = await _context.PhoneItems.FindAsync(id);
+                if (phone == null)
+                {
+                    return NotFound();
+                }
+
+                phone.Name = item.Name;
+                phone.Description = item.Description;
+
+                _context.PhoneItems.Update(phone);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            phone.Name = item.Name;
-            phone.Description = item.Description;
-
-            _context.PhoneItems.Update(phone);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                return BadRequest(ErrorCode.CouldNotUpdateEntity);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -81,14 +110,21 @@ namespace PhoneShopAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(int id)
         {
-            var phone = await _context.PhoneItems.FindAsync(id);
-            if(phone == null)
+            try
             {
-                return NotFound();
+                var phone = await _context.PhoneItems.FindAsync(id);
+                if (phone == null)
+                {
+                    return NotFound();
+                }
+                _context.PhoneItems.Remove(phone);
+                await _context.SaveChangesAsync();
+                return NoContent();
             }
-            _context.PhoneItems.Remove(phone);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            catch (Exception)
+            {
+                return BadRequest(ErrorCode.CouldNotDeleteEntity);
+            }
         }
     }
 }
