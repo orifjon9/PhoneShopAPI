@@ -14,6 +14,8 @@ using NJsonSchema;
 using NSwag.AspNetCore;
 using System.Reflection;
 using PhoneShopAPI.Formatters;
+using PhoneShopAPI.Data.Access.DAL;
+using PhoneShopAPI.Data.Access.Imp;
 
 namespace PhoneShopAPI
 {
@@ -32,6 +34,10 @@ namespace PhoneShopAPI
             // Register the database context as dependance injection (DI)
             services.AddDbContext<PhoneContext>(opt =>
                 opt.UseInMemoryDatabase("PhoneList"));
+
+            // Register the repository as dependance injection (DI)
+            services.AddScoped<IPhoneRepository, PhoneRepository>();
+            
             services.AddMvc(options =>
             {
                 // request header should have "Accept = text/csv"

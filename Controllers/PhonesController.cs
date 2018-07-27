@@ -5,27 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PhoneShopAPI.Helpers;
+using PhoneShopAPI.Data.Access.DAL;
 
 namespace PhoneShopAPI.Controllers
 {
     [Route("api/[controller]")]
     public class PhonesController : Controller
     {
-        private readonly PhoneContext _context;
+        private readonly IPhoneRepository _repository;
 
-        public PhonesController(PhoneContext context)
+        public PhonesController(IPhoneRepository repository)
         {
-            _context = context;
-
-            if (_context.PhoneItems.Count() == 0)
-            {
-                _context.PhoneItems.AddRangeAsync(
-                    new Phone() { Name = "iPhone X", Description = "Access your work directory, email or calendar with iPhone X by Apple." },
-                    new Phone() { Name = "Galaxy S9+", Description = "Access your work directory, email or calendar with Galaxy S9+ by Samsung." },
-                    new Phone() { Name = "iPhone 8 Plus", Description = "Access your work directory, email or calendar with iPhone 8 Plus by Apple." },
-                    new Phone() { Name = "Galaxy Note8", Description = "Access your work directory, email or calendar with Galaxy Note8 by Samsung." });
-                _context.SaveChangesAsync();
-            }
+            _repository = repository;
         }
 
         [HttpGet]
@@ -34,7 +25,7 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                return Ok(_context.PhoneItems.ToList());
+                return Ok(_repository.GetAll());
             }
             catch (Exception)
             {
@@ -49,7 +40,7 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _context.PhoneItems.FindAsync(id);
+                var phone = await _repository.GetByIdAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
@@ -67,8 +58,8 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                await _context.PhoneItems.AddAsync(phone);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(phone);
+                await _repository.CommitAsync();
 
                 return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
             }
@@ -85,7 +76,7 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _context.PhoneItems.FindAsync(id);
+                var phone = await _repository.GetByIdAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
@@ -94,8 +85,8 @@ namespace PhoneShopAPI.Controllers
                 phone.Name = item.Name;
                 phone.Description = item.Description;
 
-                _context.PhoneItems.Update(phone);
-                await _context.SaveChangesAsync();
+                _repository.Update(phone);
+                await _repository.CommitAsync();
 
                 return NoContent();
             }
@@ -112,13 +103,14 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _context.PhoneItems.FindAsync(id);
+                var phone = await _repository.GetByIdAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
                 }
-                _context.PhoneItems.Remove(phone);
-                await _context.SaveChangesAsync();
+                _repository.Delete(phone);
+                await _repository.CommitAsync();
+
                 return NoContent();
             }
             catch (Exception)
