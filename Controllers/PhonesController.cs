@@ -6,17 +6,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using PhoneShopAPI.Helpers;
 using PhoneShopAPI.Data.Access.DAL;
+using PhoneShopAPI.Services.Interfaces;
+using PhoneShopAPI.Services;
 
 namespace PhoneShopAPI.Controllers
 {
     [Route("api/[controller]")]
     public class PhonesController : Controller
     {
-        private readonly IPhoneRepository _repository;
+        private readonly IPhoneService _service;
 
         public PhonesController(IPhoneRepository repository)
         {
-            _repository = repository;
+            _service = new PhoneService(this.ModelState, repository);
         }
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                return Ok(_repository.GetAll());
+                return Ok(_service.ListPhones());
             }
             catch (Exception)
             {
@@ -40,7 +42,7 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _repository.GetByIdAsync(id);
+                var phone = await _service.GetPhoneAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
@@ -58,13 +60,15 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                await _repository.AddAsync(phone);
-                await _repository.CommitAsync();
-
-                return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
+                if (await _service.CreatePhoneItemAsync(phone))
+                {
+                    return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
+                }
+                return BadRequest(this.ModelState);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return BadRequest(ErrorCode.CouldNotCreateEntity);
             }
         }
@@ -76,19 +80,17 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _repository.GetByIdAsync(id);
+                var phone = await _service.GetPhoneAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
                 }
 
-                phone.Name = item.Name;
-                phone.Description = item.Description;
-
-                _repository.Update(phone);
-                await _repository.CommitAsync();
-
-                return NoContent();
+                if (await _service.UpdatePhoneItem(phone, item))
+                {
+                    return NoContent();
+                }
+                return BadRequest(this.ModelState);
             }
             catch (Exception)
             {
@@ -103,14 +105,13 @@ namespace PhoneShopAPI.Controllers
         {
             try
             {
-                var phone = await _repository.GetByIdAsync(id);
+                var phone = await _service.GetPhoneAsync(id);
                 if (phone == null)
                 {
                     return NotFound();
                 }
-                _repository.Delete(phone);
-                await _repository.CommitAsync();
 
+                await _service.DeletePhoneItem(phone);
                 return NoContent();
             }
             catch (Exception)

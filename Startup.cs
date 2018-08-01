@@ -16,6 +16,8 @@ using System.Reflection;
 using PhoneShopAPI.Formatters;
 using PhoneShopAPI.Data.Access.DAL;
 using PhoneShopAPI.Data.Access.Imp;
+using PhoneShopAPI.Services.Interfaces;
+using PhoneShopAPI.Services;
 
 namespace PhoneShopAPI
 {
@@ -37,7 +39,7 @@ namespace PhoneShopAPI
 
             // Register the repository as dependance injection (DI)
             services.AddScoped<IPhoneRepository, PhoneRepository>();
-            
+
             services.AddMvc(options =>
             {
                 // request header should have "Accept = text/csv"
