@@ -1,6 +1,5 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using PhoneShopAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +7,8 @@ using PhoneShopAPI.Helpers;
 using PhoneShopAPI.Data.Access.DAL;
 using PhoneShopAPI.Services.Interfaces;
 using PhoneShopAPI.Services;
+using PhoneShopAPI.ViewModels;
+using PhoneShopAPI.Filters;
 
 namespace PhoneShopAPI.Controllers
 {
@@ -16,14 +17,14 @@ namespace PhoneShopAPI.Controllers
     {
         private readonly IPhoneService _service;
 
-        public PhonesController(IPhoneRepository repository)
+        public PhonesController(IPhoneService service)
         {
-            _service = new PhoneService(this.ModelState, repository);
+            _service = service;
         }
 
         [HttpGet]
         [ProducesResponseType(200)]
-        public ActionResult<List<Phone>> GetAll()
+        public ActionResult<List<PhoneViewModel>> GetAll()
         {
             try
             {
@@ -36,9 +37,9 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpGet("{id}", Name = "GetPhone")]
-        [ProducesResponseType(typeof(Phone), 200)]
+        [ProducesResponseType(typeof(PhoneViewModel), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<Phone>> GetById(int id)
+        public async Task<ActionResult<PhoneViewModel>> GetById(int id)
         {
             try
             {
@@ -56,13 +57,14 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]Phone phone)
+        [ValidateViewModel]
+        public async Task<IActionResult> Create([FromBody]PhoneViewModel phoneViewModel)
         {
             try
             {
-                if (await _service.CreatePhoneItemAsync(phone))
+                if (await _service.CreatePhoneItemAsync(phoneViewModel))
                 {
-                    return CreatedAtRoute("GetPhone", new { id = phone.Id }, phone);
+                    return CreatedAtRoute("GetPhone", new { id = phoneViewModel.Id }, phoneViewModel);
                 }
                 return BadRequest(this.ModelState);
             }
@@ -74,9 +76,9 @@ namespace PhoneShopAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(PhoneViewModel), 204)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Update(int id, [FromBody] Phone item)
+        public async Task<IActionResult> Update(int id, [FromBody] PhoneViewModel item)
         {
             try
             {
@@ -86,14 +88,15 @@ namespace PhoneShopAPI.Controllers
                     return NotFound();
                 }
 
-                if (await _service.UpdatePhoneItem(phone, item))
+                if (await _service.UpdatePhoneItem(phone.Id, item))
                 {
                     return NoContent();
                 }
                 return BadRequest(this.ModelState);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 return BadRequest(ErrorCode.CouldNotUpdateEntity);
             }
         }

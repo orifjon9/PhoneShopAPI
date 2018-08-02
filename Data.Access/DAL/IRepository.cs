@@ -11,8 +11,8 @@ namespace PhoneShopAPI.Data.Access.DAL
         T GetById(int id);
         Task<T> GetByIdAsync(int id);
 
-        T Add(T entity);
-        Task<T> AddAsync(T entity);
+        void Add(T entity);
+        Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);
         

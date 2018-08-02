@@ -2,57 +2,49 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PhoneShopAPI.Data.Access.DAL;
 using PhoneShopAPI.Models;
 using PhoneShopAPI.Services.Interfaces;
+using PhoneShopAPI.ViewModels;
 
 namespace PhoneShopAPI.Services
 {
     public class PhoneService : IPhoneService
     {
         private readonly IPhoneRepository _repository;
-        private readonly ModelStateDictionary _modelState;
+        private readonly IMapper _mapper;
 
-        public PhoneService(ModelStateDictionary modelState, IPhoneRepository repository)
+        public PhoneService(IMapper mapper, IPhoneRepository repository)
         {
             this._repository = repository;
-            this._modelState = modelState;
+            this._mapper = mapper;
         }
 
-        public bool ValidatePhone(Phone phoneToValidate)
+        public async Task<PhoneViewModel> GetPhoneAsync(int id)
         {
-            if (phoneToValidate.Name.Trim().Length == 0)
-            {
-                _modelState.AddModelError("Name", "Name is required!");
-            }
-            if (phoneToValidate.Description.Trim().Length == 0)
-            {
-                _modelState.AddModelError("Description", "Description is required!");
-            }
-            return _modelState.IsValid;
+            return _mapper
+                .Map<Phone, PhoneViewModel>(
+                    await _repository.GetByIdAsync(id));
         }
 
-        public async Task<Phone> GetPhoneAsync(int id)
+        public IEnumerable<PhoneViewModel> ListPhones()
         {
-            return await _repository.GetByIdAsync(id);
+            return _mapper
+                .Map<IEnumerable<Phone>, IEnumerable<PhoneViewModel>>(
+                    _repository.GetAll());
         }
 
-        public IEnumerable<Phone> ListPhones()
+        public async Task<bool> CreatePhoneItemAsync(PhoneViewModel phoneToCreate)
         {
-            return _repository.GetAll();
-        }
-
-        public async Task<bool> CreatePhoneItemAsync(Phone phoneToCreate)
-        {
-            if (!ValidatePhone(phoneToCreate))
-            {
-                return false;
-            }
             try
             {
-                await _repository.AddAsync(phoneToCreate);
+                var phone = _mapper.Map<PhoneViewModel, Phone>(phoneToCreate);
+                await _repository.AddAsync(phone);
                 await _repository.CommitAsync();
+
+                phoneToCreate.Id = phone.Id;
                 return true;
             }
             catch (Exception ex)
@@ -61,25 +53,23 @@ namespace PhoneShopAPI.Services
             }
         }
 
-        public async Task<bool> DeletePhoneItem(Phone phoneToDelete)
+        public async Task<bool> DeletePhoneItem(PhoneViewModel phoneToDelete)
         {
-            _repository.Delete(phoneToDelete);
+            var phone = _mapper.Map<PhoneViewModel, Phone>(phoneToDelete);
+            _repository.Delete(phone);
             await _repository.CommitAsync();
             return true;
         }
 
-        public async Task<bool> UpdatePhoneItem(Phone srcPhone, Phone phoneToUpdate)
+        public async Task<bool> UpdatePhoneItem(int id, PhoneViewModel phoneToUpdate)
         {
-            if (!ValidatePhone(phoneToUpdate))
-            {
-                return false;
-            }
             try
             {
-                srcPhone.Name = phoneToUpdate.Name;
-                srcPhone.Description = phoneToUpdate.Description;
+                var phone = _mapper.Map<PhoneViewModel, Phone>(phoneToUpdate);
+                phone.Id = id;
+                
+                _repository.Update(phone);
                 await _repository.CommitAsync();
-
                 return true;
             }
             catch (Exception ex)

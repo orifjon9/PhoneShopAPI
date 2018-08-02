@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PhoneShopAPI.Data.Access.DAL;
 using PhoneShopAPI.Models;
 
@@ -25,50 +27,30 @@ namespace PhoneShopAPI.Data.Access.Imp
             }
         }
 
-        public IEnumerable<Phone> GetAll()
-        {
-            return _dbContext.PhoneItems.Select(s => s);
-        }
+        public IEnumerable<Phone> GetAll() => _dbContext.PhoneItems.Select(s => s);
 
-        public Phone GetById(int id)
-        {
-            return _dbContext.PhoneItems.Find(id);
-        }
+        public Phone GetById(int id) => _dbContext.PhoneItems.Find(id);
 
-        public async Task<Phone> GetByIdAsync(int id)
-        {
-            return await _dbContext.PhoneItems.FindAsync(id);
-        }
+        public async Task<Phone> GetByIdAsync(int id) => await _dbContext.PhoneItems.AsNoTracking().FirstAsync(f => f.Id == id);
 
-        public Phone Add(Phone entity)
-        {
-            _dbContext.PhoneItems.Add(entity);
-            return entity;
-        }
+        public void Add(Phone entity) => _dbContext.PhoneItems.Add(entity);
 
-        public async Task<Phone> AddAsync(Phone entity)
-        {
-            await _dbContext.PhoneItems.AddAsync(entity);
-            return entity;
-        }
+        public async Task AddAsync(Phone entity) => await _dbContext.PhoneItems.AddAsync(entity);
 
         public void Update(Phone entity)
         {
-            _dbContext.PhoneItems.Update(entity);
+            _dbContext.PhoneItems.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Modified;
         }
+
         public void Delete(Phone entity)
         {
-            _dbContext.PhoneItems.Remove(entity);
+            _dbContext.PhoneItems.Attach(entity);
+            _dbContext.Entry(entity).State = EntityState.Deleted;
         }
 
-        public void Commit()
-        {
-            _dbContext.SaveChanges();
-        }
+        public void Commit() => _dbContext.SaveChanges();
 
-        public async Task CommitAsync()
-        {
-            await _dbContext.SaveChangesAsync();
-        }
+        public async Task CommitAsync() => await _dbContext.SaveChangesAsync();
     }
 }

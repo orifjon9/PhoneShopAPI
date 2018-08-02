@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PhoneShopAPI.Models;
+using PhoneShopAPI.ViewModels;
 
 namespace PhoneShopAPI.Services.Interfaces {
     
     public interface IPhoneService
     {
-        IEnumerable<Phone> ListPhones();
-        Task<Phone> GetPhoneAsync(int id);
+        IEnumerable<PhoneViewModel> ListPhones();
+        Task<PhoneViewModel> GetPhoneAsync(int id);
 
-        Task<bool> CreatePhoneItemAsync(Phone phoneToCreate);
-        Task<bool> UpdatePhoneItem(Phone srcPhone, Phone phoneToUpdate);
-        Task<bool> DeletePhoneItem(Phone phoneToDelete);
-
-        bool ValidatePhone(Phone phoneToValidate);
+        Task<bool> CreatePhoneItemAsync(PhoneViewModel phoneToCreate);
+        Task<bool> UpdatePhoneItem(int id, PhoneViewModel phoneToUpdate);
+        Task<bool> DeletePhoneItem(PhoneViewModel phoneToDelete);
     }
 }

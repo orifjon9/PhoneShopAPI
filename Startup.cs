@@ -18,6 +18,8 @@ using PhoneShopAPI.Data.Access.DAL;
 using PhoneShopAPI.Data.Access.Imp;
 using PhoneShopAPI.Services.Interfaces;
 using PhoneShopAPI.Services;
+using PhoneShopAPI.Filters;
+using AutoMapper;
 
 namespace PhoneShopAPI
 {
@@ -39,12 +41,16 @@ namespace PhoneShopAPI
 
             // Register the repository as dependance injection (DI)
             services.AddScoped<IPhoneRepository, PhoneRepository>();
+            services.AddScoped<IPhoneService, PhoneService>();
 
             services.AddMvc(options =>
             {
                 // request header should have "Accept = text/csv"
                 options.OutputFormatters.Add(new CsvOutputFormatter());
+                // add filter
+                options.Filters.Add(typeof(ValidateViewModelAttribute));
             });
+            services.AddAutoMapper();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
