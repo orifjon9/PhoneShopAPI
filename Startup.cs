@@ -20,6 +20,9 @@ using PhoneShopAPI.Services.Interfaces;
 using PhoneShopAPI.Services;
 using PhoneShopAPI.Filters;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace PhoneShopAPI
 {
@@ -35,11 +38,28 @@ namespace PhoneShopAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // add jwt authorization mechanism 
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(confOptions =>
+                {
+                    confOptions.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    };
+                });
+
             // Register the database context as dependance injection (DI)
             services.AddDbContext<PhoneContext>(opt =>
                 opt.UseInMemoryDatabase("PhoneList"));
 
             // Register the repository as dependance injection (DI)
+            services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IPhoneRepository, PhoneRepository>();
             services.AddScoped<IPhoneService, PhoneService>();
 
@@ -91,6 +111,8 @@ namespace PhoneShopAPI
                 settings.GeneratorSettings.DefaultPropertyNameHandling =
                     PropertyNameHandling.CamelCase;
             });
+
+            app.UseAuthentication();
 
             app.UseMvc();
         }

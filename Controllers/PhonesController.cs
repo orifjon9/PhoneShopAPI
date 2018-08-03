@@ -9,10 +9,12 @@ using PhoneShopAPI.Services.Interfaces;
 using PhoneShopAPI.Services;
 using PhoneShopAPI.ViewModels;
 using PhoneShopAPI.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PhoneShopAPI.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class PhonesController : Controller
     {
         private readonly IPhoneService _service;
