@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using PhoneShopAPI.Models;
+using PhoneShopAPI.Security;
 using PhoneShopAPI.Services.Interfaces;
 
 namespace PhoneShopAPI.Services
@@ -34,10 +35,10 @@ namespace PhoneShopAPI.Services
 
         private string BuildToken()
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("veryVerySecretKey"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtCredentialData.Instance.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken("http://localhost:5000/", "http://localhost:5000/",
+            var token = new JwtSecurityToken(JwtCredentialData.Instance.Issuer, JwtCredentialData.Instance.Issuer,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds);
 
