@@ -15,7 +15,7 @@ namespace PhoneShopAPI.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
-    public class PhonesController : Controller
+    public class PhonesController : ControllerBase
     {
         private readonly IPhoneService _service;
 
