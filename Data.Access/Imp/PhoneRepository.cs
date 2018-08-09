@@ -4,15 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PhoneShopAPI.Data.Access.DAL;
+using PhoneShopAPI.DataLayer.Context;
 using PhoneShopAPI.Models;
 
 namespace PhoneShopAPI.Data.Access.Imp
 {
     public class PhoneRepository : IPhoneRepository
     {
-        private readonly PhoneContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
 
-        public PhoneRepository(PhoneContext context)
+        public PhoneRepository(ApplicationDbContext context)
         {
             _dbContext = context;
 

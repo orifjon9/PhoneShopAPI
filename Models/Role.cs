@@ -1,9 +1,18 @@
 
+using System.Collections.Generic;
+
 namespace PhoneShopAPI.Models
 {
     public class Role
     {
-        public int RoleId { get; set; }
-        public string RoleName { get; set; }
+        public Role()
+        {
+            UserRoles = new HashSet<UserRole>();
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }

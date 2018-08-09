@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PhoneShopAPI.Security;
+using PhoneShopAPI.DataLayer.Context;
 
 namespace PhoneShopAPI
 {
@@ -58,8 +59,7 @@ namespace PhoneShopAPI
                 });
 
             // Register the database context as dependance injection (DI)
-            services.AddDbContext<PhoneContext>(opt =>
-                opt.UseInMemoryDatabase("PhoneList"));
+            services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase("ApplicationDbContext"));
 
             // Register the repository as dependance injection (DI)
             services.AddScoped<ILoginService, LoginService>();
